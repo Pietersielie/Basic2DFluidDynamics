@@ -1,0 +1,9 @@
+{
+    "name" : "Sol",
+    "powerOutput" : 1350,
+    "colour" : 550,
+    "distance" : 1,
+    "axialTilt" : 23.5,
+    "tropicalYearLength" : 31556923.488,
+    "solarDayLength" : 86400
+}
