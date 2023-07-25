@@ -115,6 +115,7 @@ namespace BasicFluidDynamics{
             velocityY = std::make_shared<T>();
             velocityX = std::make_shared<T>();
             colour = std::make_shared<T>();
+            pressure = std::make_shared<T>();
 
             scalarQuantities.push_back(colour);
 		}
@@ -128,6 +129,7 @@ namespace BasicFluidDynamics{
             velocityY = std::make_shared<T>(faceWidth, size);
             velocityX = std::make_shared<T>(faceWidth, size);
             colour = std::make_shared<T>(faceWidth, size);
+            pressure = std::make_shared<T>(faceWidth, size);
 
             scalarQuantities.push_back(colour);
 			init();
@@ -142,6 +144,7 @@ namespace BasicFluidDynamics{
             velocityY = std::make_shared<T>(width, height, 0.0, 0.5, xSize, ySize);
             velocityX = std::make_shared<T>(width, height, 0.5, 0.0, xSize, ySize);
             colour = std::make_shared<T>(width, height, 0.5, 0.5, xSize, ySize);
+            pressure = std::make_shared<T>(width, height, 0.5, 0.5, xSize, ySize);
 
             scalarQuantities.push_back(colour);
             init();

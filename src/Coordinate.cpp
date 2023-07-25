@@ -1,8 +1,8 @@
 #include "Coordinate.h"
 #include <cmath>
 
-namespace PWM{
-	namespace PWMDataStructure{
+namespace BasicFluidDynamics{
+    namespace Data{
 		Coordinate::Coordinate(double lat, double longi): latitude(lat), longitude(longi) {
 		}
 		

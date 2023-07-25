@@ -1,1 +1,4 @@
 build/
+ImageOutput/
+CMakeLists.txt.*
+*.gif

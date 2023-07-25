@@ -43,6 +43,7 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
 
     auto l1 = std::make_shared<BasicFluidDynamics::Model::fluidLayer<dsType, valType>>(BasicFluidDynamics::Model::fluidLayer<dsType, valType>(nX, nY, 10000, 2500));
     l1->getObstacles().copy(0);
+    l1->getColour().copy(200);
     for (int i = 0; i < nX; ++i){//For width
         l1->setObstacles(0, i, 1);
         l1->setObstacles(nY - 1, i, 1);
@@ -58,7 +59,7 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
 //                l1->setObstacles(i, j, 1.);
 //                l1->setObstacles(i, j + (nX / 2), 1.);
                 l1->setObstacles(i /*+ (nY / 3.2)*/, j + (nX / 4), 1.);
-                l1->setTemperature(i, j + (nX / 3), 0.);
+                l1->setColour(i, j + (nX / 3), 0.);
 //                l1->setObstacles(i - (nY / 3.2), j + (nX / 4), 1.);
             }
         }
@@ -73,7 +74,7 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
     double highT = 1000.0;
     for (int i = -hotWidth; i < hotWidth; ++i){
         for (int j = -hotWidth; j < hotWidth; ++j){
-            l1->setTemperature(i + startj, j + startk, highT);
+            l1->setColour(i + startj, j + startk, highT);
         }
     }
 
@@ -94,10 +95,10 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
 //        }
         if (i % frac == 0){
             std::stringstream fT, fVY, fVX, fP;
-            fT << "../ImageOutput/FlatMACTest/Layer_Temperature_Step_" << i + 1 << ".ppm";
-            fVX << "../ImageOutput/FlatMACTest/Layer_VelX_Step_" << i + 1 << ".ppm";
-            fVY << "../ImageOutput/FlatMACTest/Layer_VelY_Step_" << i + 1 << ".ppm";
-            fP << "../ImageOutput/FlatMACTest/Layer_Pressure_Step_" << i + 1 << ".ppm";
+            fT << "../ImageOutput/Colour_Step_" << i + 1 << ".ppm";
+            fVX << "../ImageOutput/VelX_Step_" << i + 1 << ".ppm";
+            fVY << "../ImageOutput/VelY_Step_" << i + 1 << ".ppm";
+            fP << "../ImageOutput/Pressure_Step_" << i + 1 << ".ppm";
             BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour());
             BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityTheta());
             BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityPhi());

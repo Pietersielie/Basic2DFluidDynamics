@@ -51,13 +51,10 @@ namespace BasicFluidDynamics{
                 //Calculate divergence and pressure (without solving) to simulate uplift/downdrafts to some extent
                 void calcPressures();
 
-                //Calculate divergence and apply a coarse smoothing to the pressure field
-                void smoothPressure();
-
                 //Calculate the velocity adjustments resulting from the pressure field
                 void solvePressureProjection();
 
-                //Function to add an air layer to the engine
+                //Function to add a fluid layer to the engine
                 void addLayer(std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>& l);
                 const std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>& getFluidLayers() const;
         };
@@ -294,7 +291,7 @@ namespace BasicFluidDynamics{
 
             pressure = solver.solveWithGuess(div, PrevPressure);
             if (solver.info() != Eigen::Success){
-                std::cerr << "Eigen solver solve failed in layer at height " << l->getHeight() << " metre!" << std::endl;
+                std::cerr << "Eigen solver solve failed!" << std::endl;
             }
             if (!(solver.error() < solverTolerance))
                 std::cerr << "Solver error: " << solver.error() << std::endl;
@@ -314,11 +311,6 @@ namespace BasicFluidDynamics{
                 std::cerr << "Solver used " << solver.iterations() << " iterations to reach an error of " << solver.error() << "." << std::endl;
                 std::cerr << "Pressure has a range of " << l->getPressure().range() << ", a mean of " << l->getPressure().mean() << ", and a standard deviation of " << l->getPressure().stdDev() << std::endl;
             #endif
-        }
-
-        template<typename T, typename V>
-        inline void pressureEngine<T, V>::smoothPressure(){
-            std::cout << "Error! Not implemented for general template, use a specialized template or define pressureEngine::smoothPressure() for this template!" << std::endl;
         }
 
         template<typename T, typename V>
@@ -374,7 +366,7 @@ namespace BasicFluidDynamics{
         template<typename T, typename V>
         inline void pressureEngine<T, V>::solvePressureProjection(){
             startComputation();
-            for (auto l : airLayers){
+            for (auto l : fluidLayers){
                 solvePressureProjection(l);
             }
             endComputation();
@@ -383,7 +375,7 @@ namespace BasicFluidDynamics{
         template<typename T, typename V>
         inline void pressureEngine<T, V>::calcPressures(){
             startComputation();
-            for (auto l : airLayers){
+            for (auto l : fluidLayers){
                 solvePressureMatrix(l);
                 // std::cout << "X velocities after advection:\n" << l->getVelocityTheta().print() << std::endl;
             }
@@ -396,20 +388,8 @@ namespace BasicFluidDynamics{
         }
 
         template<>
-        inline void pressureEngine<BasicFluidDynamics::Data::square2DArray<double>, double>::step_internal(){
-            for (auto l : airLayers){
-                calcDiv(l);
-                // std::cout << "Divergence:\n" << divergence->print() << std::endl;
-                l->getPressure().mul(0);
-                multiGridSolve(l->getPressure(), *divergence);
-                //std::cout << "Pressure:\n" << l->getPressure().print() << std::endl;
-                solvePressureProjection(l);
-            }
-        }
-
-        template<>
         inline void pressureEngine<BasicFluidDynamics::Data::flatStaggeredGrid<double>, double>::step_internal(){
-            for (auto l : airLayers){
+            for (auto l : fluidLayers){
                 solvePressureMatrix(l);
                 solvePressureProjection(l);
                 // std::cout << "X velocities after advection:\n" << l->getVelocityTheta().print() << std::endl;
