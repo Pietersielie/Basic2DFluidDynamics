@@ -1,11 +1,11 @@
-#ifndef PWM_FLATSTAGGEREDGRID_H
-#define PWM_FLATSTAGGEREDGRID_H
+#ifndef BFD_FLATSTAGGEREDGRID_H
+#define BFD_FLATSTAGGEREDGRID_H
 
-#include "AbstractPWMDataStructure.h"
+#include "AbstractDataStructure.h"
 #include <memory>
 
-namespace PWM {
-    namespace PWMDataStructure {
+namespace BasicFluidDynamics {
+    namespace Data {
         template<typename T>
         class flatStaggeredGrid;
 
@@ -13,7 +13,7 @@ namespace PWM {
         void swap(flatStaggeredGrid<T>& i, flatStaggeredGrid<T>& j);
 
         template<typename T>
-        class flatStaggeredGrid : public AbstractPWMDataStructure<T> {
+        class flatStaggeredGrid : public AbstractDataStructure<T> {
             private:
                 size_t nX; //Dimensions in the X direction (width)
                 size_t nY; //Dimensions in the Y direction (height)
@@ -73,7 +73,7 @@ namespace PWM {
         };
 
         template<typename T>
-        flatStaggeredGrid<T>::flatStaggeredGrid() : AbstractPWMDataStructure<T>(){
+        flatStaggeredGrid<T>::flatStaggeredGrid() : AbstractDataStructure<T>(){
             worldXLength = 0;
             worldYLength = 0;
             nX = 0;
@@ -83,12 +83,12 @@ namespace PWM {
         }
 
         template<typename T>
-        flatStaggeredGrid<T>::flatStaggeredGrid(const flatStaggeredGrid &other) : AbstractPWMDataStructure<T>(other.getX() * other.getY()), nX(other.getX()), nY(other.getY()), x_offset(other.getXOffset()), y_offset(other.getYOffset()), worldXLength(other.getXWorldLength()), worldYLength(other.getYWorldLength()){
+        flatStaggeredGrid<T>::flatStaggeredGrid(const flatStaggeredGrid &other) : AbstractDataStructure<T>(other.getX() * other.getY()), nX(other.getX()), nY(other.getY()), x_offset(other.getXOffset()), y_offset(other.getYOffset()), worldXLength(other.getXWorldLength()), worldYLength(other.getYWorldLength()){
             this->copy(other);
         }
 
         template<typename T>
-        flatStaggeredGrid<T>::flatStaggeredGrid(const size_t width, const size_t height, double xOff, double yOff, double wrldX, double wrldY) : AbstractPWMDataStructure<T>(width * height), nX(width), nY(height), x_offset(xOff), y_offset(yOff){
+        flatStaggeredGrid<T>::flatStaggeredGrid(const size_t width, const size_t height, double xOff, double yOff, double wrldX, double wrldY) : AbstractDataStructure<T>(width * height), nX(width), nY(height), x_offset(xOff), y_offset(yOff){
             if (wrldX <= 0)
                 wrldX = width;
             if (wrldY <= 0)
@@ -207,7 +207,7 @@ namespace PWM {
             val12 = this->getData(x1, y2);
             val21 = this->getData(x2, y1);
             val22 = this->getData(x2, y2);
-            return PWM::Utils::interpolate(val11, val12, val21, val22, alphaY, alphaX);
+            return BasicFluidDynamics::Utils::interpolate(val11, val12, val21, val22, alphaY, alphaX);
         }
 
         template<typename T>
@@ -247,7 +247,7 @@ namespace PWM {
                     return val21;
                 }
                 else{
-                    return PWM::Utils::interpolate(val21, val22, alphaY);
+                    return BasicFluidDynamics::Utils::interpolate(val21, val22, alphaY);
                 }
             }
             else if (obs11){
@@ -255,15 +255,15 @@ namespace PWM {
                     return val12;
                 }
                 else if (obs21){
-                    return PWM::Utils::interpolate(val12, val22, alphaX);
+                    return BasicFluidDynamics::Utils::interpolate(val12, val22, alphaX);
                 }
                 else if (obs22){
-                    return PWM::Utils::interpolate(val12, val21, alphaX);
+                    return BasicFluidDynamics::Utils::interpolate(val12, val21, alphaX);
                 }
                 else {
                     val1 = val12;
-                    val2 = PWM::Utils::interpolate(val21, val22, alphaY);
-                    return PWM::Utils::interpolate(val1, val2, alphaX);
+                    val2 = BasicFluidDynamics::Utils::interpolate(val21, val22, alphaY);
+                    return BasicFluidDynamics::Utils::interpolate(val1, val2, alphaX);
                 }
             }
             else if (obs12){
@@ -271,19 +271,19 @@ namespace PWM {
                     return val11;
                 }
                 else if (obs21){
-                    return PWM::Utils::interpolate(val11, val22, alphaX);
+                    return BasicFluidDynamics::Utils::interpolate(val11, val22, alphaX);
                 }
                 else if (obs22){
-                    return PWM::Utils::interpolate(val11, val21, alphaX);
+                    return BasicFluidDynamics::Utils::interpolate(val11, val21, alphaX);
                 }
                 else {
                     val1 = val11;
-                    val2 = PWM::Utils::interpolate(val21, val22, alphaY);
-                    return PWM::Utils::interpolate(val1, val2, alphaX);
+                    val2 = BasicFluidDynamics::Utils::interpolate(val21, val22, alphaY);
+                    return BasicFluidDynamics::Utils::interpolate(val1, val2, alphaX);
                 }
             }
             else{
-                return PWM::Utils::interpolate(val11, val12, val21, val22, alphaY, alphaX);
+                return BasicFluidDynamics::Utils::interpolate(val11, val12, val21, val22, alphaY, alphaX);
             }
         }
 
@@ -324,22 +324,22 @@ namespace PWM {
 
         template<typename T>
         const T flatStaggeredGrid<T>::getData(const size_t index) const{
-            return AbstractPWMDataStructure<T>::getData(index);
+            return AbstractDataStructure<T>::getData(index);
         }
 
         template<typename T>
         const T flatStaggeredGrid<T>::getData(const size_t i, const size_t j) const{
-            return AbstractPWMDataStructure<T>::getData(convert2Dto1D(i, j));
+            return AbstractDataStructure<T>::getData(convert2Dto1D(i, j));
         }
 
         template<typename T>
         void flatStaggeredGrid<T>::setData(const size_t index, const T& val){
-            AbstractPWMDataStructure<T>::setData(index, val);
+            AbstractDataStructure<T>::setData(index, val);
         }
 
         template<typename T>
         void flatStaggeredGrid<T>::setData(const size_t i, const size_t j, const T& val){
-            AbstractPWMDataStructure<T>::setData(convert2Dto1D(i, j), val);
+            AbstractDataStructure<T>::setData(convert2Dto1D(i, j), val);
         }
 
         template<typename T>
@@ -378,7 +378,7 @@ namespace PWM {
                                     continue;
                                 }
                                 auto pos = std::make_pair(y1, x1);
-                                float dist = PWM::Utils::calcCartesianDistance<float>(loc, pos);
+                                float dist = BasicFluidDynamics::Utils::calcCartesianDistance<float>(loc, pos);
                                 if (dist <= window){
                                     windowSum += this->getData(y1, x1);
                                     ++cellsinWin;
@@ -408,7 +408,7 @@ namespace PWM {
                         for (int y1 = i - winInt; y1 <= i + winInt; ++y1){
                             for (int x1 = j - winInt; x1 <= j + winInt; ++x1){
                                 auto pos = std::make_pair(y1, x1);
-                                float dist = PWM::Utils::calcCartesianDistance<float>(loc, pos);
+                                float dist = BasicFluidDynamics::Utils::calcCartesianDistance<float>(loc, pos);
                                 if (dist <= window){
                                     windowSum += this->getData(y1, x1);
                                     ++cellsinWin;

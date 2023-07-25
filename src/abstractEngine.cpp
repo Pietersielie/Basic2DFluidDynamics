@@ -1,6 +1,6 @@
 #include "abstractEngine.h"
 
-namespace PWM {
+namespace BasicFluidDynamics {
 	namespace Engine {
 		//Default constructor
         AbstractEngine::AbstractEngine(float t, bool active) : dt(t), execTimePassed(0.0), simTimePassed(0.0), isActive(active){}

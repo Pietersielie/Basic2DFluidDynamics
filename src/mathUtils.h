@@ -13,7 +13,7 @@
 #include <tuple>
 #include <vector>
 
-namespace PWM{
+namespace BasicFluidDynamics{
     namespace Utils{
         /**
          * Linear interpolation
@@ -73,7 +73,7 @@ namespace PWM{
         }
 
         template<typename T>
-    inline const T radToDeg(const T& angleInRad){
+        inline const T radToDeg(const T& angleInRad){
             #if __cplusplus > 201703L
 				return angleInRad * (180 / std::numbers::pi);
 			#else
@@ -82,7 +82,7 @@ namespace PWM{
         }
 
         template<typename T>
-    inline const T degToRad(const T& angleInDeg){
+        inline const T degToRad(const T& angleInDeg){
             #if __cplusplus > 201703L
 				return angleInDeg * (std::numbers::pi / 180);
 			#else
@@ -90,26 +90,8 @@ namespace PWM{
 			#endif
         }
 
-        template<typename T>
-    inline void triDiagonalMatrixSolver(T* a, T* b, T* c, T* d, int n){
-            --n;
-            
-            c[0] /= b[0];
-            d[0] /= b[0];
-
-            for (int i = 1; i < n; ++i){
-                c[i] /= b[i] - (a[i] * c[i - 1]);
-                d[i] = (d[i] - (a[i] * d[i - 1])) / (b[i] - (a[i] * c[i - 1]));
-            }
-            
-            d[n] = (d[n] - (a[n] * d[n - 1])) / (b[n] - (a[n] * c[n - 1]));
-
-            for (int i = n; i > 0; --i)
-                d[i] -= c[i] * d[i + 1];
-        }
-
 		template<typename T>
-    inline std::tuple<T, T, T> safeMinMax(const T& min, const T& max){
+        inline std::tuple<T, T, T> safeMinMax(const T& min, const T& max){
 			if (min < 0){
 				return std::make_tuple((T) 0, max + std::abs(min), std::abs(min));
 			}
@@ -117,7 +99,7 @@ namespace PWM{
 		}
 
         template<typename T>
-    inline T elevThres(const float threshold, const T testElev, const T minH, const T topH, const std::vector<std::pair<T, bool>>& data){
+        inline T elevThres(const float threshold, const T testElev, const T minH, const T topH, const std::vector<std::pair<T, bool>>& data){
             if ((topH - minH) < 100)
                 return testElev;
             int count = 0;
@@ -149,12 +131,12 @@ namespace PWM{
         }
 
         template<typename T>
-    inline T eigenVecDistance(Eigen::Vector3f& a, Eigen::Vector3f& b){
+        inline T eigenVecDistance(Eigen::Vector3f& a, Eigen::Vector3f& b){
             T res = sqrt(std::pow(a.x() - b.x(), 2) + std::pow(a.y() - b.y(), 2) + std::pow(a.z() - b.z(), 2));
             return res;
         }
 
-    inline const size_t convert2Dto1DUtil(const size_t x, const size_t y, const int i, const int j){
+        inline const size_t convert2Dto1DUtil(const size_t x, const size_t y, const int i, const int j){
             int i1, j1;
             i1 = (i < 0) ? i + x : i;
             j1 = (j < 0) ? j + y : j;
@@ -166,7 +148,7 @@ namespace PWM{
          *        See https://en.wikipedia.org/wiki/Perlin_noise#Implementation
          */
         template<typename T, typename T1>
-    inline std::pair<T, T> randomGradient(T1& ix, T1& iy) {
+        inline std::pair<T, T> randomGradient(T1& ix, T1& iy) {
             // No precomputed gradients mean this works for any number of grid coordinates
             const unsigned w = 8 * sizeof(unsigned);
             const unsigned s = w / 2; // rotation width
@@ -186,7 +168,7 @@ namespace PWM{
          *        See https://en.wikipedia.org/wiki/Perlin_noise#Implementation
          */
         template<typename T, typename T1>
-    inline T dotGridGradient(T1 ix, T1 iy, T x, T y) {
+        inline T dotGridGradient(T1 ix, T1 iy, T x, T y) {
             // Get gradient from integer coordinates
             std::pair<T, T> gradient = randomGradient<T, T1>(ix, iy);
 
@@ -207,7 +189,7 @@ namespace PWM{
          * @return A value between 0 and max.
          */
         template<typename T, typename T1>
-    inline const T perlin(T1& x, T1& y, T& max){
+        inline const T perlin(T1& x, T1& y, T& max){
             // Determine grid cell coordinates
             T1 x0 = (int) floor(x);
             T1 x1 = x0 + 1;

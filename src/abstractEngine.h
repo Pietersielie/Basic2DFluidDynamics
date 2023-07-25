@@ -2,7 +2,7 @@
 #define PWM_ABSTRACT_ENGINE_H
 
 #include <chrono>
-namespace PWM{
+namespace BasicFluidDynamics{
 	namespace Engine{
 		class AbstractEngine{
 			private:
@@ -30,9 +30,7 @@ namespace PWM{
 				//virtual void clear();
 				float getRunTimePassed() const;
 				float getSimTimePassed() const;
-				const float getDt() const;
-			/*signals:
-				void done();*/
+                const float getDt() const;
 		};
 	}
 }

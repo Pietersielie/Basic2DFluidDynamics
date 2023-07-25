@@ -4,8 +4,8 @@
 
 #ifndef PWM_PWMDATASTRUCTURE_COORDINATE_H
 #define PWM_PWMDATASTRUCTURE_COORDINATE_H
-namespace PWM {
-	namespace PWMDataStructure{
+namespace BasicFluidDynamics {
+    namespace Data{
 		class Coordinate{
 			private:
 				double latitude, longitude;

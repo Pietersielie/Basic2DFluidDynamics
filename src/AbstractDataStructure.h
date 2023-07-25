@@ -1,8 +1,8 @@
 // This class serves as an abstract class for any data structure and should allow the other engines to be general.
 // Cilliers Pretorius
 // 05 May 2021
-#ifndef PWM_ABSTRACTPWMDATASTRUCTURE_H
-#define PWM_ABSTRACTPWMDATASTRUCTURE_H
+#ifndef BFD_ABSTRACTPWMDATASTRUCTURE_H
+#define BFD_ABSTRACTPWMDATASTRUCTURE_H
 
 #include "Coordinate.h"
 #include <cstddef>
@@ -13,24 +13,21 @@
 #include <tuple>
 #include <vector>
 
-namespace PWM {
-	namespace PWMDataStructure{
-		template <typename T> class AbstractPWMDataStructure;
+namespace BasicFluidDynamics {
+    namespace Data{
+        template <typename T> class AbstractDataStructure;
 
 		template<typename T>
-		void swap(AbstractPWMDataStructure<T>& i, AbstractPWMDataStructure<T>& j);
+        void swap(AbstractDataStructure<T>& i, AbstractDataStructure<T>& j);
 
-		template <typename T> class AbstractPWMDataStructure{
+        template <typename T> class AbstractDataStructure{
 			private:
                 T * data;
             public:
                 size_t datasize;
-                AbstractPWMDataStructure();
-                AbstractPWMDataStructure(const size_t len);
-                virtual ~AbstractPWMDataStructure() = 0;
-                /*~AbstractPWMDataStructure();
-                AbstractPWMDataStructure(const AbstractPWMDataStructure & other);
-                AbstractPWMDataStructure(AbstractPWMDataStructure && other);*/
+                AbstractDataStructure();
+                AbstractDataStructure(const size_t len);
+                virtual ~AbstractDataStructure() = 0;
                 virtual const Coordinate getCoordinates(const size_t index) const = 0;
                 virtual const double gridLength() const = 0;
 
@@ -41,13 +38,13 @@ namespace PWM {
                 const T stdDev() const;
 
                 void mul(const T& val);
-                void add(const AbstractPWMDataStructure & other);
+                void add(const AbstractDataStructure & other);
 
                 void randomInit(const T& min, const T& max);
 
                 void copy(const T& val);
-                void copy(const AbstractPWMDataStructure& other);
-                bool checkSize(const AbstractPWMDataStructure& other) const;
+                void copy(const AbstractDataStructure& other);
+                bool checkSize(const AbstractDataStructure& other) const;
 
                 const size_t size() const;
 
@@ -60,32 +57,32 @@ namespace PWM {
                 virtual const std::string print() const = 0;
                 virtual const T getInterpolated(const double x, const double y) const = 0;
 
-                AbstractPWMDataStructure& operator=(const AbstractPWMDataStructure & other);
-                AbstractPWMDataStructure& operator=(const T& val);
-                bool operator==(const AbstractPWMDataStructure & other) const;
-                bool operator!=(const AbstractPWMDataStructure & other) const;
-                AbstractPWMDataStructure& operator+=(const AbstractPWMDataStructure & other);
-                AbstractPWMDataStructure& operator*=(const T& val);
+                AbstractDataStructure& operator=(const AbstractDataStructure & other);
+                AbstractDataStructure& operator=(const T& val);
+                bool operator==(const AbstractDataStructure & other) const;
+                bool operator!=(const AbstractDataStructure & other) const;
+                AbstractDataStructure& operator+=(const AbstractDataStructure & other);
+                AbstractDataStructure& operator*=(const T& val);
 
-                friend void swap <> (AbstractPWMDataStructure<T>& i, AbstractPWMDataStructure<T>& j);
+                friend void swap <> (AbstractDataStructure<T>& i, AbstractDataStructure<T>& j);
 		};
 
 		template<typename T>
-    inline AbstractPWMDataStructure<T>::AbstractPWMDataStructure() : datasize(0){
+        inline AbstractDataStructure<T>::AbstractDataStructure() : datasize(0){
 		}
 		
 		template<typename T>
-    inline AbstractPWMDataStructure<T>::AbstractPWMDataStructure(size_t len) : datasize(len){
+        inline AbstractDataStructure<T>::AbstractDataStructure(size_t len) : datasize(len){
 			this->data = new T[len];
 		}
 		
         template<typename T>
-    inline AbstractPWMDataStructure<T>::~AbstractPWMDataStructure(){
+        inline AbstractDataStructure<T>::~AbstractDataStructure(){
             delete[] this->data;
         }
 		
 		template<typename T>
-    inline AbstractPWMDataStructure<T>& AbstractPWMDataStructure<T>::operator=(const AbstractPWMDataStructure<T> & other){
+        inline AbstractDataStructure<T>& AbstractDataStructure<T>::operator=(const AbstractDataStructure<T> & other){
 			if (*this == other)
 				return *this;
 			this->data = other.data;
@@ -94,7 +91,7 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline bool AbstractPWMDataStructure<T>::operator==(const AbstractPWMDataStructure<T> & other) const {
+        inline bool AbstractDataStructure<T>::operator==(const AbstractDataStructure<T> & other) const {
 			if (datasize != other.datasize)
 				return false;
 			for (int i = 0; i < datasize; ++i)
@@ -104,43 +101,43 @@ namespace PWM {
 		}
 		
 		template<typename T>
-    inline bool AbstractPWMDataStructure<T>::operator!=(const AbstractPWMDataStructure<T> & other) const {
+        inline bool AbstractDataStructure<T>::operator!=(const AbstractDataStructure<T> & other) const {
 			return !(this == other);
 		}
 
 		template<typename T>
-    inline const size_t AbstractPWMDataStructure<T>::size() const{
+        inline const size_t AbstractDataStructure<T>::size() const{
 			return datasize;
 		}
 
 		template<typename T>
-    inline bool AbstractPWMDataStructure<T>::checkSize(const AbstractPWMDataStructure<T>& other) const{
+        inline bool AbstractDataStructure<T>::checkSize(const AbstractDataStructure<T>& other) const{
 			if (size() != other.size())
 				return false;
 			return true;
 		}
 
 		template<typename T>
-    inline const T AbstractPWMDataStructure<T>::getData(const size_t index) const {
+        inline const T AbstractDataStructure<T>::getData(const size_t index) const {
 			if (index < size())
 				return this->data[index];
 			else{
-				std::cerr << "\033[1;31mError: Out of bounds array read access in AbstractPWMDataStructure::getData(const size_t index) with index = " << index << "! Returning default value.\033[0m" << std::endl;
+                std::cerr << "\033[1;31mError: Out of bounds array read access in AbstractDataStructure::getData(const size_t index) with index = " << index << "! Returning default value.\033[0m" << std::endl;
 				return T();
 			}
 		}
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::setData(const size_t index, const T& val) {
+        inline void AbstractDataStructure<T>::setData(const size_t index, const T& val) {
 			if (index < size()){
 				this->data[index] = val;
 				return;
 			}else
-				std::cerr << "\033[1;31mError: Out of bounds array read access in AbstractPWMDataStructure::setData(const size_t index, const T& val) with index = " << index << "! Doing nothing.\033[0m" << std::endl;
+                std::cerr << "\033[1;31mError: Out of bounds array read access in AbstractDataStructure::setData(const size_t index, const T& val) with index = " << index << "! Doing nothing.\033[0m" << std::endl;
 		}
 
 		template<typename T>
-    inline const T AbstractPWMDataStructure<T>::min() const{
+        inline const T AbstractDataStructure<T>::min() const{
 			T min = std::numeric_limits<T>::max();
 			for (int i = 0; i < size(); ++i)
 				if (this->data[i] < min)
@@ -149,7 +146,7 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline const T AbstractPWMDataStructure<T>::max() const{
+        inline const T AbstractDataStructure<T>::max() const{
 			T max = std::numeric_limits<T>::min();
 			for (int i = 0; i < size(); ++i)
 				if (this->data[i] > max)
@@ -158,7 +155,7 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline const std::pair<T, T> AbstractPWMDataStructure<T>::minmax() const{
+        inline const std::pair<T, T> AbstractDataStructure<T>::minmax() const{
 			T min = std::numeric_limits<T>::max();
 			T max = std::numeric_limits<T>::min();
 			for (int i = 0; i < size(); ++i){
@@ -171,23 +168,23 @@ namespace PWM {
         }
 
         template<typename T>
-    inline const T AbstractPWMDataStructure<T>::range() const{
+        inline const T AbstractDataStructure<T>::range() const{
             auto r = this->minmax();
             return r.second - r.first;
         }
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::mul(const T& val){
+        inline void AbstractDataStructure<T>::mul(const T& val){
 			*this *= val;
 		}
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::add(const AbstractPWMDataStructure<T>& other){
+        inline void AbstractDataStructure<T>::add(const AbstractDataStructure<T>& other){
 			*this += other;
 		}
 
 		template<typename T>
-    inline const T AbstractPWMDataStructure<T>::sum() const{
+        inline const T AbstractDataStructure<T>::sum() const{
 			auto res = T();
 			#pragma omp parallel for reduction(+: res)
 				for (int i = 0; i < size(); ++i)
@@ -197,14 +194,14 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline const T AbstractPWMDataStructure<T>::mean() const{
+        inline const T AbstractDataStructure<T>::mean() const{
 			T r;
 			r = sum() / size();
             return r;
         }
 
         template<typename T>
-    inline const T AbstractPWMDataStructure<T>::stdDev() const{
+        inline const T AbstractDataStructure<T>::stdDev() const{
             T ave = this->mean();
             T var = 0;
             #pragma omp parallel for reduction(+: var)
@@ -215,7 +212,7 @@ namespace PWM {
         }
 
 		template<typename T>
-    inline AbstractPWMDataStructure<T>& AbstractPWMDataStructure<T>::operator*=(const T& val){
+        inline AbstractDataStructure<T>& AbstractDataStructure<T>::operator*=(const T& val){
 			#pragma omp parallel for
 				for (int i = 0; i < size(); ++i){
 					auto x = getData(i) * val;
@@ -226,7 +223,7 @@ namespace PWM {
         }
 
         template<typename T>
-    inline AbstractPWMDataStructure<T>& AbstractPWMDataStructure<T>::operator+=(const AbstractPWMDataStructure<T>& other){
+        inline AbstractDataStructure<T>& AbstractDataStructure<T>::operator+=(const AbstractDataStructure<T>& other){
             #pragma omp parallel for
                 for (int i = 0; i < size(); ++i){
                     auto x = getData(i) + other.getData(i);
@@ -237,7 +234,7 @@ namespace PWM {
         }
 
         template<typename T>
-    inline AbstractPWMDataStructure<T>& AbstractPWMDataStructure<T>::operator=(const T& val){
+        inline AbstractDataStructure<T>& AbstractDataStructure<T>::operator=(const T& val){
 			#pragma omp parallel for
 				for (int i = 0; i < size(); ++i){
 					setData(i, val);
@@ -247,12 +244,12 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::copy(const T& val){
+        inline void AbstractDataStructure<T>::copy(const T& val){
 			*this = val;
 		}
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::copy(const AbstractPWMDataStructure<T>& other){
+        inline void AbstractDataStructure<T>::copy(const AbstractDataStructure<T>& other){
 			#pragma omp parallel for
 				for (int i = 0; i < size(); ++i){
 					setData(i, other.getData(i));
@@ -261,32 +258,19 @@ namespace PWM {
 		}
 
 		template<typename T>
-    inline void AbstractPWMDataStructure<T>::randomInit(const T& min, const T& max){
+        inline void AbstractDataStructure<T>::randomInit(const T& min, const T& max){
 			std::mt19937_64 mt(time(NULL));
-			auto d = PWM::Utils::safeMinMax(min, max);
+            auto d = BasicFluidDynamics::Utils::safeMinMax(min, max);
 			std::uniform_real_distribution<T> dist(std::get<0>(d), std::get<1>(d));
 			for (int i = 0; i < size(); ++i)
 				setData(i, (dist(mt) - std::get<2>(d)));
 		}
 
 		template<typename T>
-    inline void swap(AbstractPWMDataStructure<T>& i, AbstractPWMDataStructure<T>& j){
+        inline void swap(AbstractDataStructure<T>& i, AbstractDataStructure<T>& j){
 			std::swap(i.data, j.data);
 			std::swap(i.datasize, j.datasize);
 		}
-
-//		template<typename R, typename T, typename Function>
-//		void map(std::vector<R>& result, const AbstractPWMDataStructure<T>& data, Function mapper){
-//			if (result.size() != data.size()){
-//				std::cerr << "In map(std::vector<R> result, AbstractPWMDataStructure<T> data, Function mapper), result and data do not have matching sizes!" << std::endl;
-//				return;
-//			}
-//			#pragma omp parallel for
-//				for (int i = 0; i < data.size(); ++i){
-//					result[i] = mapper(data, i);
-//				}
-//			#pragma omp barrier
-//		}
 	}
 }
 

@@ -2,7 +2,7 @@
 #define PWM_OBSTACLES_ENGINE_H
 
 #include "abstractEngine.h"
-#include "airLayer.h"
+#include "fluidLayer.h"
 #include "flatStaggeredGrid.h"
 #include "terrain.h"
 #include <omp.h>
@@ -22,11 +22,11 @@ namespace PWM{
             public:
                 obstaclesEngine(float dt, bool active);
 
-                void addAirLayer(std::shared_ptr<PWM::Model::airLayer<T, V>> l);
+                void addAirLayer(std::shared_ptr<PWM::Model::fluidLayer<T, V>> l);
                 void setTerrain(std::shared_ptr<PWM::Model::terrain<T, TT, V, VV>> t);
 
                 const std::vector<std::shared_ptr<PWM::Model::airLayer<T, V>>>& getAirLayers() const;
-                const std::shared_ptr<PWM::Model::airLayer<T, V>> getAirLayer(const size_t index) const;
+                const std::shared_ptr<PWM::Model::fluidLayer<T, V>> getAirLayer(const size_t index) const;
                 const std::shared_ptr<PWM::Model::terrain<T, TT, V, VV>> getTerrain() const;
         };
 
@@ -36,7 +36,7 @@ namespace PWM{
         }
 
         template<typename T, typename TT, typename V, typename VV>
-        inline void obstaclesEngine<T, TT, V, VV>::addAirLayer(std::shared_ptr<PWM::Model::airLayer<T, V>> l){
+        inline void obstaclesEngine<T, TT, V, VV>::addAirLayer(std::shared_ptr<PWM::Model::fluidLayer<T, V>> l){
             airLayers.push_back(l);
             sortLayers();
         }
@@ -47,7 +47,7 @@ namespace PWM{
         }
 
         template<typename T, typename TT, typename V, typename VV>
-        inline const std::shared_ptr<PWM::Model::airLayer<T, V>> obstaclesEngine<T, TT, V, VV>::getAirLayer(const size_t index) const{
+        inline const std::shared_ptr<PWM::Model::fluidLayer<T, V>> obstaclesEngine<T, TT, V, VV>::getAirLayer(const size_t index) const{
             return airLayers.at(index);
         }
 

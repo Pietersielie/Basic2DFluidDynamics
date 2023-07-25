@@ -7,16 +7,15 @@
  */
 
 #include "advectionEngine.h"
-#include "airLayer.h"
+#include "fluidLayer.h"
 #include <filesystem>
 #include "flatStaggeredGrid.h"
 #include <iostream>
-#include "planet.h"
 #include "pressureEngine.h"
 #include "vizUtils.h"
 
 typedef double valType;
-typedef PWM::PWMDataStructure::flatStaggeredGrid<valType> dsType;
+typedef BasicFluidDynamics::Data::flatStaggeredGrid<valType> dsType;
 
 void testConstructors(){
 
@@ -36,14 +35,13 @@ void testSetters(){
 
 void testMiscellany(const size_t nX, const size_t nY, const int steps, const int frac){
     auto currDir = std::filesystem::current_path();
-    currDir.remove_filename().remove_filename().concat("ImageOutput/FlatMACTest");
+    currDir.remove_filename().remove_filename().concat("ImageOutput/");
     for (auto dir_Entry : std::filesystem::directory_iterator(currDir)){
         if (!dir_Entry.path().empty() && dir_Entry.path().has_filename() && ((dir_Entry.path().extension().string() == ".png") || (dir_Entry.path().extension().string() == ".ppm")))
             std::filesystem::remove(dir_Entry.path());
     }
 
-    auto planetos = std::make_shared<PWM::Model::planet>(PWM::Model::planet("../resources/PlanetEarth.json"));
-    auto l1 = std::make_shared<PWM::Model::airLayer<dsType, valType>>(PWM::Model::airLayer<dsType, valType>(planetos, 100, 100, nX, nY, 10000, 2500));
+    auto l1 = std::make_shared<BasicFluidDynamics::Model::fluidLayer<dsType, valType>>(BasicFluidDynamics::Model::fluidLayer<dsType, valType>(nX, nY, 10000, 2500));
     l1->getObstacles().copy(0);
     for (int i = 0; i < nX; ++i){//For width
         l1->setObstacles(0, i, 1);
@@ -55,7 +53,7 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
     int jMin = hillCentre.second - radius, jMax = hillCentre.second + radius;
     for (int i = iMin; i < iMax; ++i){
         for (int j = jMin; j < jMax; ++j){
-            valType dist = PWM::Utils::calcCartesianDistance<valType, int, int>(hillCentre, std::make_pair(i, j));
+            valType dist = BasicFluidDynamics::Utils::calcCartesianDistance<valType, int, int>(hillCentre, std::make_pair(i, j));
             if (dist <= radius){
 //                l1->setObstacles(i, j, 1.);
 //                l1->setObstacles(i, j + (nX / 2), 1.);
@@ -66,10 +64,8 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
         }
     }
     std::stringstream fO;
-    fO << "../ImageOutput/FlatMACTest/Layer_Obstacles.ppm";
-    PWM::Utils::writeTerrElevImage(fO.str(), l1->getObstacles());
-//    l1->getVelocityPhi().randomInit(-20, 20);
-//    l1->getVelocityTheta().randomInit(-20, 20);
+    fO << "../ImageOutput/Layer_Obstacles.ppm";
+    BasicFluidDynamics::Utils::writeTerrElevImage(fO.str(), l1->getObstacles());
     l1->getVelocityPhi().copy(80);
     l1->getVelocityTheta().copy(0);
     int hotWidth = nY / 10;
@@ -81,8 +77,8 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
         }
     }
 
-    auto x = PWM::Engine::advectionEngine<dsType, valType>(nX, nY, 10000, 2500, 0.05f, true, false);
-    auto y = PWM::Engine::pressureEngine<dsType, valType>(nX, nY, 10000, 2500, 0.05f, true);
+    auto x = BasicFluidDynamics::Engine::advectionEngine<dsType, valType>(nX, nY, 10000, 2500, 0.05f, true, false);
+    auto y = BasicFluidDynamics::Engine::pressureEngine<dsType, valType>(nX, nY, 10000, 2500, 0.05f, true);
     x.addLayer(l1);
     y.addLayer(l1);
     double previousStep = 0;
@@ -94,7 +90,7 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
 //            }
 //            std::stringstream fO1;
 //            fO1 << "../ImageOutput/FlatMACTest/Layer_Obstacles_Step_" << i << ".ppm";
-//            PWM::Utils::writeTerrElevImage(fO1.str(), l1->getObstacles());
+//            BasicFluidDynamics::Utils::writeTerrElevImage(fO1.str(), l1->getObstacles());
 //        }
         if (i % frac == 0){
             std::stringstream fT, fVY, fVX, fP;
@@ -102,10 +98,10 @@ void testMiscellany(const size_t nX, const size_t nY, const int steps, const int
             fVX << "../ImageOutput/FlatMACTest/Layer_VelX_Step_" << i + 1 << ".ppm";
             fVY << "../ImageOutput/FlatMACTest/Layer_VelY_Step_" << i + 1 << ".ppm";
             fP << "../ImageOutput/FlatMACTest/Layer_Pressure_Step_" << i + 1 << ".ppm";
-            PWM::Utils::writeTempImage(fT.str(), l1->getTemperature());
-            PWM::Utils::writeVelImage(fVX.str(), l1->getVelocityTheta());
-            PWM::Utils::writeVelImage(fVY.str(), l1->getVelocityPhi());
-//            PWM::Utils::writeTerrElevImage(fP.str(), l1->getPressure());
+            BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour());
+            BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityTheta());
+            BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityPhi());
+//            BasicFluidDynamics::Utils::writeTerrElevImage(fP.str(), l1->getPressure());
         }
         previousStep = x.getRunTimePassed();
         x.step();
