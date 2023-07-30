@@ -62,17 +62,17 @@ namespace BasicFluidDynamics{
 
 				T& getObstacles();
                 std::shared_ptr<T>& getObsPtr();
-				T& getVelocityTheta();
-				T& getVelocityPhi();
+                T& getVelocityY();
+                T& getVelocityX();
                 T& getColour();
                 T& getPressure();
 
 				const V getObstacles(const size_t index) const;
 				const V getObstacles(const size_t i, const size_t j) const;
-                const V getVelocityTheta(const size_t index) const;
-				const V getVelocityTheta(const size_t i, const size_t j) const;
-                const V getVelocityPhi(const size_t index) const;
-				const V getVelocityPhi(const size_t i, const size_t j) const;
+                const V getVelocityY(const size_t index) const;
+                const V getVelocityY(const size_t i, const size_t j) const;
+                const V getVelocityX(const size_t index) const;
+                const V getVelocityX(const size_t i, const size_t j) const;
                 const V getColour(const size_t index) const;
                 const V getColour(const size_t i, const size_t j) const;
                 const V getPressure(const size_t index) const;
@@ -80,17 +80,17 @@ namespace BasicFluidDynamics{
 
 				// Setters for each of the data fields
                 void setObstacles(T& obs);
-				void setVelocityTheta(T& vTheta);
-				void setVelocityPhi(T& vPhi);
+                void setVelocityY(T& vTheta);
+                void setVelocityX(T& vPhi);
                 void setColour(T& temps);
                 void setPressure(T& pres);
 
 				void setObstacles(const size_t index, const V& val);
 				void setObstacles(const size_t i, const size_t j, const V& val);
-                void setVelocityTheta(const size_t index, const V& val);
-				void setVelocityTheta(const size_t i, const size_t j, const V& val);
-                void setVelocityPhi(const size_t index, const V& val);
-				void setVelocityPhi(const size_t i, const size_t j, const V& val);
+                void setVelocityY(const size_t index, const V& val);
+                void setVelocityY(const size_t i, const size_t j, const V& val);
+                void setVelocityX(const size_t index, const V& val);
+                void setVelocityX(const size_t i, const size_t j, const V& val);
                 void setColour(const size_t index, const V& val);
                 void setColour(const size_t i, const size_t j, const V& val);
                 void setPressure(const size_t index, const V& val);
@@ -199,32 +199,32 @@ namespace BasicFluidDynamics{
 		}
 
         template<typename T, typename V>
-        inline T& fluidLayer<T, V>::getVelocityTheta(){
+        inline T& fluidLayer<T, V>::getVelocityY(){
             return *velocityY;
 		}
 
 		template<typename T, typename V>
-        inline const V fluidLayer<T, V>::getVelocityTheta(const size_t index) const{
+        inline const V fluidLayer<T, V>::getVelocityY(const size_t index) const{
             return velocityY->getData(index);
 		}
 
 		template<typename T, typename V>
-        inline const V fluidLayer<T, V>::getVelocityTheta(const size_t i, const size_t j) const{
+        inline const V fluidLayer<T, V>::getVelocityY(const size_t i, const size_t j) const{
             return velocityY->getData(i, j);
 		}
 
         template<typename T, typename V>
-        inline T& fluidLayer<T, V>::getVelocityPhi(){
+        inline T& fluidLayer<T, V>::getVelocityX(){
             return *velocityX;
 		}
 
 		template<typename T, typename V>
-        inline const V fluidLayer<T, V>::getVelocityPhi(const size_t index) const{
+        inline const V fluidLayer<T, V>::getVelocityX(const size_t index) const{
             return (*velocityX).getData(index);
 		}
 
 		template<typename T, typename V>
-        inline const V fluidLayer<T, V>::getVelocityPhi(const size_t i, const size_t j) const{
+        inline const V fluidLayer<T, V>::getVelocityX(const size_t i, const size_t j) const{
             return (*velocityX).getData(i, j);
 		}
 
@@ -274,32 +274,32 @@ namespace BasicFluidDynamics{
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityTheta(T& velTheta){
+        inline void fluidLayer<T, V>::setVelocityY(T& velTheta){
             *velocityY = velTheta;
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityTheta(const size_t index, const V& val){
+        inline void fluidLayer<T, V>::setVelocityY(const size_t index, const V& val){
             (*velocityY).setData(index, val);
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityTheta(const size_t i, const size_t j, const V& val){
+        inline void fluidLayer<T, V>::setVelocityY(const size_t i, const size_t j, const V& val){
             (*velocityY).setData(i, j, val);
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityPhi(T& velPhi){
+        inline void fluidLayer<T, V>::setVelocityX(T& velPhi){
             *velocityX = velPhi;
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityPhi(const size_t index, const V& val){
+        inline void fluidLayer<T, V>::setVelocityX(const size_t index, const V& val){
             (*velocityX).setData(index, val);
 		}
 
 		template<typename T, typename V>
-        inline void fluidLayer<T, V>::setVelocityPhi(const size_t i, const size_t j, const V& val){
+        inline void fluidLayer<T, V>::setVelocityX(const size_t i, const size_t j, const V& val){
             (*velocityX).setData(i, j, val);
 		}
 
@@ -337,9 +337,9 @@ namespace BasicFluidDynamics{
         inline bool fluidLayer<T, V>::operator==(fluidLayer<T, V>& other){
 			if (getObstacles() != other.getObstacles())
 				return false;
-			if (getVelocityTheta() != other.getVelocityTheta())
+            if (getVelocityY() != other.getVelocityY())
 				return false;
-			if (getVelocityPhi() != other.getVelocityPhi())
+            if (getVelocityX() != other.getVelocityX())
 				return false;
             if (getColour() != other.getColour())
                 return false;

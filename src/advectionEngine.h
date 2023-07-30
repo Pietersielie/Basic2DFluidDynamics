@@ -31,8 +31,8 @@ namespace BasicFluidDynamics{
                 std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>> fluidLayers;
 
                 //Buffers for parallel advection:
-                std::shared_ptr<T> bufferVelTheta;
-                std::shared_ptr<T> bufferVelPhi;
+                std::shared_ptr<T> bufferVelY;
+                std::shared_ptr<T> bufferVelX;
                 std::shared_ptr<T> bufferCol;
 
                 //A list of the scalar buffers, used for simultaneous advection of all scalar values
@@ -72,8 +72,8 @@ namespace BasicFluidDynamics{
         inline advectionEngine<T, V>::advectionEngine(float dt, bool active, bool cor): AbstractEngine(dt, active), coriolis(cor) {
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
 
-            bufferVelTheta = std::make_shared<T>();
-            bufferVelPhi = std::make_shared<T>();
+            bufferVelY = std::make_shared<T>();
+            bufferVelX = std::make_shared<T>();
             bufferCol = std::make_shared<T>();
 
             scalarBuffers.push_back(bufferCol);
@@ -83,8 +83,8 @@ namespace BasicFluidDynamics{
         inline advectionEngine<T, V>::advectionEngine(const size_t width, const float dt, bool active, bool cor): AbstractEngine(dt, active), coriolis(cor) {
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
 
-            bufferVelTheta = std::make_shared<T>(width);
-            bufferVelPhi = std::make_shared<T>(width);
+            bufferVelY = std::make_shared<T>(width);
+            bufferVelX = std::make_shared<T>(width);
             bufferCol = std::make_shared<T>(width);
 
             scalarBuffers.push_back(bufferCol);
@@ -94,8 +94,8 @@ namespace BasicFluidDynamics{
         inline advectionEngine<T, V>::advectionEngine(const size_t width, const V actualSize, float dt, bool active, bool cor): AbstractEngine(dt, active), coriolis(cor) {
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
 
-            bufferVelTheta = std::make_shared<T>(width, actualSize);
-            bufferVelPhi = std::make_shared<T>(width, actualSize);
+            bufferVelY = std::make_shared<T>(width, actualSize);
+            bufferVelX = std::make_shared<T>(width, actualSize);
             bufferCol = std::make_shared<T>(width, actualSize);
 
             scalarBuffers.push_back(bufferCol);
@@ -105,8 +105,8 @@ namespace BasicFluidDynamics{
         inline advectionEngine<T, V>::advectionEngine(const size_t width, const size_t height, const V xWrldSize, const V yWrldSize, float dt, bool active, bool cor): AbstractEngine(dt, active), coriolis(cor) {
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
 
-            bufferVelTheta = std::make_shared<T>(width, height, 0.0, 0.5, xWrldSize, yWrldSize);
-            bufferVelPhi = std::make_shared<T>(width, height, 0.5, 0.0, xWrldSize, yWrldSize);
+            bufferVelY = std::make_shared<T>(width, height, 0.0, 0.5, xWrldSize, yWrldSize);
+            bufferVelX = std::make_shared<T>(width, height, 0.5, 0.0, xWrldSize, yWrldSize);
             bufferCol = std::make_shared<T>(width, height, 0.5, 0.5, xWrldSize, yWrldSize);
 
 //            div = Eigen::VectorXd(width * height);
@@ -171,20 +171,20 @@ namespace BasicFluidDynamics{
                         double lat = BasicFluidDynamics::Utils::degToRad(l->getObstacles().getCoordinates(i, j).getLatitude());
                         double F = 2 * omega * std::sin(lat);//F is the Coriolis parameter
 
-                        auto velThetaLoc = l->getVelocityTheta().getWorldLoc(i, j);
-                        auto velPhiLoc = l->getVelocityPhi().getWorldLoc(i, j);
+                        auto VelYLoc = l->getVelocityY().getWorldLoc(i, j);
+                        auto VelXLoc = l->getVelocityX().getWorldLoc(i, j);
 
                         //Calculate change in velocity due to acceleration from coriolis force
-                        double changeVelTheta = l->getVelocityTheta(i, j) + (F * (-l->getVelocityPhi().sampleAt(velThetaLoc, ObsRef)) * getDt());
-                        double changeVelPhi = l->getVelocityPhi(i, j) + (F * l->getVelocityTheta().sampleAt(velPhiLoc, ObsRef) * getDt());
+                        double changeVelY = l->getVelocityY(i, j) + (F * (-l->getVelocityX().sampleAt(VelYLoc, ObsRef)) * getDt());
+                        double changeVelX = l->getVelocityX(i, j) + (F * l->getVelocityY().sampleAt(VelXLoc, ObsRef) * getDt());
 
                         //Write data to buffers
-                        bufferVelTheta->setData(i, j, changeVelTheta);
-                        bufferVelPhi->setData(i, j, changeVelPhi);
+                        bufferVelY->setData(i, j, changeVelY);
+                        bufferVelX->setData(i, j, changeVelX);
                     }
                 }
             #pragma omp barrier
-            l->swapVels(bufferVelTheta, bufferVelPhi);
+            l->swapVels(bufferVelY, bufferVelX);
         }
 
         template<typename T, typename V>
@@ -196,8 +196,8 @@ namespace BasicFluidDynamics{
         inline void advectionEngine<BasicFluidDynamics::Data::flatStaggeredGrid<double>, double>::advect(std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<BasicFluidDynamics::Data::flatStaggeredGrid<double>, double>>& l){
             int nX = l->getObstacles().getX(), nY = l->getObstacles().getY();
             double cellSizeX = l->getObstacles().cellSizeX(), cellSizeY = l->getObstacles().cellSizeY();
-            auto velThetaOffset = l->getVelocityTheta().getOffset();
-            auto velPhiOffset = l->getVelocityPhi().getOffset();
+            auto VelYOffset = l->getVelocityY().getOffset();
+            auto VelXOffset = l->getVelocityX().getOffset();
             auto centreOffset = l->getColour().getOffset();
             double zero = 0;
             auto dt = getDt();
@@ -207,22 +207,22 @@ namespace BasicFluidDynamics{
                     for (int j = 0; j < nX; ++j){
 
                         //Advect the velocity field in the x direction (left right)
-                        auto velPhiLoc = l->getVelocityPhi().getWorldLoc(i, j);
-                        double deltaVelPhiI = l->getVelocityTheta().sampleAt(velPhiLoc, ObsRef) * -dt / cellSizeX;
-                        double deltaVelPhiJ = l->getVelocityPhi().sampleAt(velPhiLoc, ObsRef) * -dt / cellSizeY;
-                        double newVelPhiI = (i + deltaVelPhiI) + velPhiOffset.first;
-                        double newVelPhiJ = (j + deltaVelPhiJ) + velPhiOffset.second;
-                        auto newVelPhiLoc = std::make_pair(newVelPhiI, newVelPhiJ);
-                        bufferVelPhi->setData(i, j, l->getVelocityPhi().sampleAt(newVelPhiLoc, ObsRef));
+                        auto VelXLoc = l->getVelocityX().getWorldLoc(i, j);
+                        double deltaVelXI = l->getVelocityY().sampleAt(VelXLoc, ObsRef) * -dt / cellSizeX;
+                        double deltaVelXJ = l->getVelocityX().sampleAt(VelXLoc, ObsRef) * -dt / cellSizeY;
+                        double newVelXI = (i + deltaVelXI) + VelXOffset.first;
+                        double newVelXJ = (j + deltaVelXJ) + VelXOffset.second;
+                        auto newVelXLoc = std::make_pair(newVelXI, newVelXJ);
+                        bufferVelX->setData(i, j, l->getVelocityX().sampleAt(newVelXLoc, ObsRef));
 
                         //Advect the velocity field in the y direction (top bottom)
-                        auto velThetaLoc = l->getVelocityTheta().getWorldLoc(i, j);
-                        double deltaVelThetaI = l->getVelocityTheta().sampleAt(velThetaLoc, ObsRef) * -dt / cellSizeX;
-                        double deltaVelThetaJ = l->getVelocityPhi().sampleAt(velThetaLoc, ObsRef) * -dt / cellSizeY;
-                        double newVelThetaI = (i + deltaVelThetaI) + velThetaOffset.first;
-                        double newVelThetaJ = (j + deltaVelThetaJ) + velThetaOffset.second;
-                        auto newVelThetaLoc = std::make_pair(newVelThetaI, newVelThetaJ);
-                        bufferVelTheta->setData(i, j, l->getVelocityTheta().sampleAt(newVelThetaLoc, ObsRef));
+                        auto VelYLoc = l->getVelocityY().getWorldLoc(i, j);
+                        double deltaVelYI = l->getVelocityY().sampleAt(VelYLoc, ObsRef) * -dt / cellSizeX;
+                        double deltaVelYJ = l->getVelocityX().sampleAt(VelYLoc, ObsRef) * -dt / cellSizeY;
+                        double newVelYI = (i + deltaVelYI) + VelYOffset.first;
+                        double newVelYJ = (j + deltaVelYJ) + VelYOffset.second;
+                        auto newVelYLoc = std::make_pair(newVelYI, newVelYJ);
+                        bufferVelY->setData(i, j, l->getVelocityY().sampleAt(newVelYLoc, ObsRef));
 
                         //Check if the cell contents can be advected
                         if (l->getObstacles(i, j)){
@@ -231,8 +231,8 @@ namespace BasicFluidDynamics{
                         }
                         //Advect the cell contents
                         auto centreLoc = l->getObstacles().getWorldLoc(i, j);
-                        double deltaCentreI = l->getVelocityTheta().sampleAt(centreLoc, ObsRef) * -dt / cellSizeX;
-                        double deltaCentreJ = l->getVelocityPhi().sampleAt(centreLoc, ObsRef) * -dt / cellSizeY;
+                        double deltaCentreI = l->getVelocityY().sampleAt(centreLoc, ObsRef) * -dt / cellSizeX;
+                        double deltaCentreJ = l->getVelocityX().sampleAt(centreLoc, ObsRef) * -dt / cellSizeY;
                         double newCentreI = (i + deltaCentreI) + centreOffset.first;
                         double newCentreJ = (j + deltaCentreJ) + centreOffset.second;
                         auto newCentreLoc = std::make_pair(newCentreI, newCentreJ);
@@ -244,7 +244,7 @@ namespace BasicFluidDynamics{
             #pragma omp barrier
 
             //swap
-            l->swapVels(bufferVelTheta, bufferVelPhi);
+            l->swapVels(bufferVelY, bufferVelX);
             l->swapCols(bufferCol);
         }
 
@@ -256,10 +256,10 @@ namespace BasicFluidDynamics{
         template<>
         inline void advectionEngine<BasicFluidDynamics::Data::flatStaggeredGrid<double>, double>::step_internal(){
             for(auto l : fluidLayers){
-                // std::cout << "X velocities prior to advection:\n" << l->getVelocityTheta().print() << std::endl;
+                // std::cout << "X velocities prior to advection:\n" << l->getVelocityY().print() << std::endl;
                 advect(l);
 
-                // std::cout << "X velocities after advection:\n" << l->getVelocityTheta().print() << std::endl;
+                // std::cout << "X velocities after advection:\n" << l->getVelocityY().print() << std::endl;
                 applyCoriolis(l);
             }
             ++stepCount;

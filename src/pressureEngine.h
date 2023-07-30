@@ -34,8 +34,8 @@ namespace BasicFluidDynamics{
                 //Calculate and apply the divergence correction of velocities
                 void solvePressureProjection(std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>& l, V scaleFactor = 1);
 
-                std::shared_ptr<T> bufferVelTheta;
-                std::shared_ptr<T> bufferVelPhi;
+                std::shared_ptr<T> bufferVelY;
+                std::shared_ptr<T> bufferVelX;
                 std::shared_ptr<T> divergence;
 
                 Eigen::VectorXd div;
@@ -63,8 +63,8 @@ namespace BasicFluidDynamics{
         inline pressureEngine<T, V>::pressureEngine(float dt, bool active) : AbstractEngine(dt, active){
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
 
-            bufferVelTheta = std::make_shared<T>();
-            bufferVelPhi = std::make_shared<T>();
+            bufferVelY = std::make_shared<T>();
+            bufferVelX = std::make_shared<T>();
             divergence = std::make_shared<T>();
             div = Eigen::VectorXd();
             pressure = Eigen::VectorXd();
@@ -74,16 +74,16 @@ namespace BasicFluidDynamics{
         template<typename T, typename V>
         inline pressureEngine<T, V>::pressureEngine(const size_t width, const V WrldSize, const float dt, bool active) : AbstractEngine(dt, active){
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
-            bufferVelTheta = std::make_shared<T>(width, WrldSize);
-            bufferVelPhi = std::make_shared<T>(width, WrldSize);
+            bufferVelY = std::make_shared<T>(width, WrldSize);
+            bufferVelX = std::make_shared<T>(width, WrldSize);
             divergence = std::make_shared<T>(width, WrldSize);
         }
 
         template<typename T, typename V>
         inline pressureEngine<T, V>::pressureEngine(const size_t width, const size_t height, const V xWrldSize, const V yWrldSize, const float dt, bool active) : AbstractEngine(dt, active){
             fluidLayers = std::vector<std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<T, V>>>();
-            bufferVelTheta = std::make_shared<T>(width, height, 0.0, 0.5, xWrldSize, yWrldSize);
-            bufferVelPhi = std::make_shared<T>(width, height, 0.5, 0.0, xWrldSize, yWrldSize);
+            bufferVelY = std::make_shared<T>(width, height, 0.0, 0.5, xWrldSize, yWrldSize);
+            bufferVelX = std::make_shared<T>(width, height, 0.5, 0.0, xWrldSize, yWrldSize);
             divergence = std::make_shared<T>(width, height, 0.5, 0.5, xWrldSize, yWrldSize);
 
             div = Eigen::VectorXd(width * height);
@@ -119,10 +119,10 @@ namespace BasicFluidDynamics{
                             continue;
                         }
                         double velBot, velTop, velRight, velLeft;
-                        velTop = (l->getObstacles(i - 1, j)) ? velSolid : l->getVelocityTheta(i, j);
-                        velBot = (l->getObstacles(i + 1, j)) ? velSolid : l->getVelocityTheta(i + 1, j);
-                        velLeft = (l->getObstacles(i, j - 1)) ? velSolid : l->getVelocityPhi(i, j);
-                        velRight = (l->getObstacles(i, j + 1)) ? velSolid : l->getVelocityPhi(i, j + 1);
+                        velTop = (l->getObstacles(i - 1, j)) ? velSolid : l->getVelocityY(i, j);
+                        velBot = (l->getObstacles(i + 1, j)) ? velSolid : l->getVelocityY(i + 1, j);
+                        velLeft = (l->getObstacles(i, j - 1)) ? velSolid : l->getVelocityX(i, j);
+                        velRight = (l->getObstacles(i, j + 1)) ? velSolid : l->getVelocityX(i, j + 1);
                         double div = (velBot - velTop) / cellSizeY + (velRight - velLeft) / cellSizeX;
                         divergence->setData(i, j, div);
                     }
@@ -173,7 +173,7 @@ namespace BasicFluidDynamics{
                             coeffAbove = zero;
                         }
                         else{
-                            velTop = l->getVelocityTheta(i, j);
+                            velTop = l->getVelocityY(i, j);
                             coeffAbove = negOne;
                         }
 
@@ -184,7 +184,7 @@ namespace BasicFluidDynamics{
                             coeffBelow = zero;
                         }
                         else{
-                            velBot = l->getVelocityTheta(i + 1, j);
+                            velBot = l->getVelocityY(i + 1, j);
                             coeffBelow = negOne;
                         }
 
@@ -195,7 +195,7 @@ namespace BasicFluidDynamics{
                             coeffLeft = zero;
                         }
                         else{
-                            velLeft = l->getVelocityPhi(i, j);
+                            velLeft = l->getVelocityX(i, j);
                             coeffLeft = negOne;
                         }
 
@@ -206,7 +206,7 @@ namespace BasicFluidDynamics{
                             coeffRight = zero;
                         }
                         else{
-                            velRight = l->getVelocityPhi(i, j + 1);
+                            velRight = l->getVelocityX(i, j + 1);
                             coeffRight = negOne;
                         }
 
@@ -333,34 +333,34 @@ namespace BasicFluidDynamics{
 //                        }
                         //Check if the central cell is solid
                         if (l->getObstacles(i, j)){
-                            bufferVelTheta->setData(i, j, velSolid);
-                            bufferVelPhi->setData(i, j, velSolid);
+                            bufferVelY->setData(i, j, velSolid);
+                            bufferVelX->setData(i, j, velSolid);
                             continue;
                         }
                         //If not, check if cell above is solid
                         if (l->getObstacles(i - 1, j)){
-                            bufferVelTheta->setData(i, j, velSolid);
+                            bufferVelY->setData(i, j, velSolid);
                         }
                         else{//Pressure update as per normal formula
-                            double gradX = scaleFactor * (dt / rho) * (l->getPressure(i, j) - l->getPressure(i - 1, j)) / cellSizeX;
-                            double newX = l->getVelocityTheta(i, j) - gradX;
-                            bufferVelTheta->setData(i, j, newX);
+                            double gradY = scaleFactor * (dt / rho) * (l->getPressure(i, j) - l->getPressure(i - 1, j)) / cellSizeX;
+                            double newY = l->getVelocityY(i, j) - gradY;
+                            bufferVelY->setData(i, j, newY);
                         }
                         //Also check if cell left is solid
                         if (l->getObstacles(i, j - 1)){
-                            bufferVelPhi->setData(i, j, velSolid);
+                            bufferVelX->setData(i, j, velSolid);
                         }
                         else{//Pressure update as per normal formula
-                            double gradY = scaleFactor * (dt / rho) * (l->getPressure(i, j) - l->getPressure(i, j - 1)) / cellSizeY;
-                            double newY = l->getVelocityPhi(i, j) - gradY;
-                            bufferVelPhi->setData(i, j, newY);
+                            double gradX = scaleFactor * (dt / rho) * (l->getPressure(i, j) - l->getPressure(i, j - 1)) / cellSizeY;
+                            double newX = l->getVelocityX(i, j) - gradX;
+                            bufferVelX->setData(i, j, newX);
                         }
                     }
                 }
             #pragma omp barrier
 
             //swap
-            l->swapVels(bufferVelTheta, bufferVelPhi);
+            l->swapVels(bufferVelY, bufferVelX);
         }
 
         template<typename T, typename V>
@@ -377,7 +377,7 @@ namespace BasicFluidDynamics{
             startComputation();
             for (auto l : fluidLayers){
                 solvePressureMatrix(l);
-                // std::cout << "X velocities after advection:\n" << l->getVelocityTheta().print() << std::endl;
+                // std::cout << "X velocities after advection:\n" << l->getVelocityY().print() << std::endl;
             }
             endComputation();
         }
@@ -392,7 +392,7 @@ namespace BasicFluidDynamics{
             for (auto l : fluidLayers){
                 solvePressureMatrix(l);
                 solvePressureProjection(l);
-                // std::cout << "X velocities after advection:\n" << l->getVelocityTheta().print() << std::endl;
+                // std::cout << "X velocities after advection:\n" << l->getVelocityY().print() << std::endl;
             }
         }
     }
