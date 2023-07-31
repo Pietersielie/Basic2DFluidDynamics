@@ -57,9 +57,9 @@ void setWindTunnel(std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<dsType,
     for (int i = 1; i < nY - 1; ++i){
         for (int j = 0; j < bufferWidth; ++j){
             layer->setVelocityX(i, j, speed);
-            layer->setVelocityX(i, -j, speed);
+            layer->setVelocityX(i, nX - j - 1, speed);
             layer->setVelocityY(i, j, 0.0);
-            layer->setVelocityY(i, -j, 0.0);
+            layer->setVelocityY(i, nX - j - 1, 0.0);
             layer->setColour(i, j, baseColour);
         }
     }
@@ -83,12 +83,12 @@ void testMiscellany(const std::string shapeFile, const valType windSpeed, const 
 
     auto l1 = constructAirLayer(shapeFile);
     setWindTunnel(l1, windSpeed);
-    l1->getVelocityX().copy(windSpeed);
+//    l1->getVelocityX().copy(windSpeed);
     std::stringstream fT, fVY, fVX, fP;
-    fT << "../ImageOutput/Init_Colour.ppm";
-    fVX << "../ImageOutput/Init_VelX.ppm";
-    fVY << "../ImageOutput/Init_VelY.ppm";
-    fP << "../ImageOutput/Init_Pressure.ppm";
+    fT << "../ImageOutput/Init_Colour.png";
+    fVX << "../ImageOutput/Init_VelX.png";
+    fVY << "../ImageOutput/Init_VelY.png";
+    fP << "../ImageOutput/Init_Pressure.png";
     BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour(), l1->getObstacles(), 0);
     BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityY(), l1->getObstacles(), 0);
     BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityX(), l1->getObstacles(), 0);
@@ -109,10 +109,10 @@ void testMiscellany(const std::string shapeFile, const valType windSpeed, const 
     for (int i = 0; i <= steps; ++i){
         if (i % frac == 0){
             std::stringstream fT, fVY, fVX, fP;
-            fT << "../ImageOutput/Colour_Step_" << i + 1 << ".ppm";
-            fVX << "../ImageOutput/VelX_Step_" << i + 1 << ".ppm";
-            fVY << "../ImageOutput/VelY_Step_" << i + 1 << ".ppm";
-            fP << "../ImageOutput/Pressure_Step_" << i + 1 << ".ppm";
+            fT << "../ImageOutput/Colour_Step_" << i + 1 << ".png";
+            fVX << "../ImageOutput/VelX_Step_" << i + 1 << ".png";
+            fVY << "../ImageOutput/VelY_Step_" << i + 1 << ".png";
+            fP << "../ImageOutput/Pressure_Step_" << i + 1 << ".png";
             BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour(), l1->getObstacles(), xBuffer);
             BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityY(), l1->getObstacles(), xBuffer);
             BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityX(), l1->getObstacles(), xBuffer);
