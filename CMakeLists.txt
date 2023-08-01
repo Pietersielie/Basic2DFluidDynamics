@@ -27,11 +27,11 @@ add_executable(Basic2DFluidDynamics
     src/Coordinate.h
     src/flatStaggeredGrid.h
 
-    src/atmofuncs.h
+
     src/mathUtils.h
     src/vizUtils.h
 
-    src/FlatMACTest.cpp
+    src/Basic2DFluidDynamics.cpp
     src/abstractEngine.cpp
     src/Coordinate.cpp
 )

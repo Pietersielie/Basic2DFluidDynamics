@@ -71,7 +71,7 @@ void setWindTunnel(std::shared_ptr<BasicFluidDynamics::Model::fluidLayer<dsType,
             layer->setColour(i + startj, j + startk, smokeColour);
 }
 
-void testMiscellany(const std::string shapeFile, const valType windSpeed, const float simTime, const size_t frac){
+void runTest(const std::string shapeFile, const valType windSpeed, const float simTime, const size_t frac){
     auto currDir = std::filesystem::current_path();
     currDir.remove_filename().remove_filename().concat("ImageOutput/");
     for (auto dir_Entry : std::filesystem::directory_iterator(currDir)){
@@ -79,7 +79,7 @@ void testMiscellany(const std::string shapeFile, const valType windSpeed, const 
             std::filesystem::remove(dir_Entry.path());
     }
 
-    float dT = (windSpeed * 1.4) / cellSize;
+    float dT = (5 * cellSize) / (windSpeed * 3);
 
     auto l1 = constructAirLayer(shapeFile);
     setWindTunnel(l1, windSpeed);
@@ -114,8 +114,8 @@ void testMiscellany(const std::string shapeFile, const valType windSpeed, const 
             fVY << "../ImageOutput/VelY_Step_" << i + 1 << ".png";
             fP << "../ImageOutput/Pressure_Step_" << i + 1 << ".png";
             BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour(), l1->getObstacles(), xBuffer);
-            BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityY(), l1->getObstacles(), xBuffer);
-            BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityX(), l1->getObstacles(), xBuffer);
+            BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityX(), l1->getObstacles(), xBuffer);
+            BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityY(), l1->getObstacles(), xBuffer);
             BasicFluidDynamics::Utils::writePresImage(fP.str(), l1->getPressure(), l1->getObstacles(), xBuffer);
         }
         previousStep = x.getRunTimePassed();
@@ -153,5 +153,5 @@ int main(int argc, char** argv){
                   << "\n  Interval: " << interval << std::endl;
     }
 
-    testMiscellany(fil, speed, time, interval);
+    runTest(fil, speed, time, interval);
 }

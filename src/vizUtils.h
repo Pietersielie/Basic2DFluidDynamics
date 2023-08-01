@@ -294,8 +294,8 @@ namespace BasicFluidDynamics {
             for (int i = 0; i < nY; ++i){
                 for (int j = xBuffer; j < nX - xBuffer; ++j){
                     if (obs.getData(i, j)){
-                        r = 166;
-                        g = b = 39;
+                        r = 83;
+                        g = b = 19;
                     }
                     else{
                         T t = data.getData(i, j);
