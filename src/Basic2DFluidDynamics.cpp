@@ -138,7 +138,7 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
 }
 
 int main(int argc, char** argv){
-    std::string fil = "../resources/Mask1.png";
+    std::string fil = "../samples/Mask1.png";
     valType speed = 10;
     float time = 300;
     int interval = 5;
