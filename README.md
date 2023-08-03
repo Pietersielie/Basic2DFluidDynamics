@@ -28,4 +28,6 @@ The program has 4 optional arguments: `./Basic2DFluidDynamics [shapeFileName] [W
 - **[simulationTime]**: How many seconds the simulation should run for (in simulation time, actual time depends on the hardware and size of the wind tunnel).
 - **[interval]**: How many time steps between each image being output to the ImageOutput folder. Note that this is simulation ticks, not actual time.
 
-Take note that the cell size is set to 20 metres on a side -- change this in line 35 of `Basic2DFluidDynamics.cpp` if you desire. The simulation timestep is automatically estimated to be the maximum that still conforms to the $\Delta t \leq \frac{5\Delta x}{u_{max}}$ stability limit recommended by Bridson.
+Take note that the cell size is set to 20 metres on a side – change this in line 35 of `Basic2DFluidDynamics.cpp` if you desire. The simulation timestep is automatically estimated to be the maximum that still conforms to the $\Delta t \leq \frac{5\Delta x}{u_{max}}$ stability limit recommended by Bridson.
+
+The `.gif` animations in the samples folder were created by taking the output in the ImageOutput folder after a run and combining it into an animation using software such as [GIMP](https://www.gimp.org/) or Photoshop.
