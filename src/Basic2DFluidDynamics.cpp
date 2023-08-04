@@ -100,8 +100,8 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
     fVY << "../ImageOutput/Init_VelY.png";
     fP << "../ImageOutput/Init_Pressure.png";
     BasicFluidDynamics::Utils::writeTempImage(fT.str(), l1->getColour(), l1->getObstacles(), 0);
-    BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityY(), l1->getObstacles(), 0);
-    BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityX(), l1->getObstacles(), 0);
+    BasicFluidDynamics::Utils::writeVelImage(fVX.str(), l1->getVelocityX(), l1->getObstacles(), 0);
+    BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityY(), l1->getObstacles(), 0);
     BasicFluidDynamics::Utils::writePresImage(fP.str(), l1->getPressure(), l1->getObstacles(), 0);
 
     int nX = l1->getObstacles().getX(), nY = l1->getObstacles().getY();
@@ -134,6 +134,20 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
         double currentStep = x.getRunTimePassed();
         std::cout << "Step " << i + 1 << " took " << currentStep - previousStep << " seconds." << std::endl;
         setWindTunnel(l1, windSpeed);
+        if (i == steps / 8)
+            std::cerr << "\033[1;36m12.5% of the way\033[0m" << std::endl;
+        else if (i == steps / 4)
+            std::cerr << "\033[1;36m25% of the way\033[0m" << std::endl;
+        else if (i == (3 * steps / 8))
+            std::cerr << "\033[1;36m37.5% of the way\033[0m" << std::endl;
+        else if (i == steps / 2)
+            std::cerr << "\033[1;36m50% of the way\033[0m" << std::endl;
+        else if (i == (5 * steps / 8))
+            std::cerr << "\033[1;36m62.5% of the way\033[0m" << std::endl;
+        else if (i == (3 * steps / 4))
+            std::cerr << "\033[1;36m75% of the way\033[0m" << std::endl;
+        else if (i == (7 * steps / 8))
+            std::cerr << "\033[1;36m87.5% of the way\033[0m" << std::endl;
     }
 }
 
