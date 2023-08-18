@@ -59,6 +59,7 @@ namespace BasicFluidDynamics{
                 Eigen::VectorXd div;
                 Eigen::VectorXd pressure;
                 Eigen::VectorXd PrevPressure;
+                Eigen::SparseMatrix<double> A;
             protected:
                 void step_internal() override;
             public:
@@ -104,9 +105,29 @@ namespace BasicFluidDynamics{
             bufferVelX = std::make_shared<T>(width, height, 0.5, 0.0, xWrldSize, yWrldSize);
             divergence = std::make_shared<T>(width, height, 0.5, 0.5, xWrldSize, yWrldSize);
 
-            div = Eigen::VectorXd(width * height);
-            pressure = Eigen::VectorXd(width * height);
-            PrevPressure = Eigen::VectorXd(width * height);
+            int nCell = width * height;
+            div = Eigen::VectorXd(nCell);
+            pressure = Eigen::VectorXd(nCell);
+            PrevPressure = Eigen::VectorXd(nCell);
+
+            this->A = Eigen::SparseMatrix<double>(nCell, nCell);
+            A.reserve(Eigen::VectorXi::Constant(nCell, 5));
+            for (int i = 0; i < height; ++i){
+                for (int j = 0; j < width; ++j){
+                    size_t cIdx, aIdx, bIdx, lIdx, rIdx;
+                    cIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(height, width, i, j);
+                    aIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(height, width, i - 1, j);
+                    bIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(height, width, i + 1, j);
+                    lIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(height, width, i, j - 1);
+                    rIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(height, width, i, j + 1);
+                    A.insert(cIdx, cIdx) = 0;
+                    A.insert(cIdx, aIdx) = 0;
+                    A.insert(cIdx, bIdx) = 0;
+                    A.insert(cIdx, lIdx) = 0;
+                    A.insert(cIdx, rIdx) = 0;
+                }
+            }
+
         }
 
         template<typename T, typename V>
@@ -162,22 +183,29 @@ namespace BasicFluidDynamics{
             auto dt = getDt();
             double rho = l->getDensity();
             double dtRho = dt / rho;
-            Eigen::SparseMatrix<double> A(nCell, nCell);
-            A.reserve(Eigen::VectorXi::Constant(nCell, 5));
 
 //            ATest = Eigen::MatrixXd::Zero(nCell, nCell);
 
             div.setZero(nCell);
             pressure.setZero(nCell);
 
-            std::vector<Eigen::Triplet<double>> trips;
-
-//            #pragma omp parallel for
+            #pragma omp parallel for
                 for (int i = 0; i < nY; ++i){
                     for (int j = 0; j < nX; ++j){
-                        size_t cidx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i, j);
+                        size_t cIdx, aIdx, bIdx, lIdx, rIdx;
+                        cIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i, j);
+                        aIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i - 1, j);
+                        bIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i + 1, j);
+                        lIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i, j - 1);
+                        rIdx = BasicFluidDynamics::Utils::convert2Dto1DUtil(nY, nX, i, j + 1);
                         if (l->getObstacles(i, j)){
-                            div[cidx] = 0;
+                            div[cIdx] = 0;
+
+                            A.coeffRef(cIdx, aIdx) = 0;
+                            A.coeffRef(cIdx, bIdx) = 0;
+                            A.coeffRef(cIdx, lIdx) = 0;
+                            A.coeffRef(cIdx, rIdx) = 0;
+                            A.coeffRef(cIdx, cIdx) = 0;
                             continue;
                         }
                         int pijCoeff = 4;
@@ -230,27 +258,16 @@ namespace BasicFluidDynamics{
 
                         double dive = (velBot - velTop) / cellSizeY + (velRight - velLeft) / cellSizeX;//Calculate divergence
                         double adjustedDive = (dive / dtRho) * (cellSizeX * cellSizeY);//Isolate coefficients to be either 4/3/2/1 for ij or -1 (or 0) for the neighbours.
-                        size_t aIdx, bIdx, lIdx, rIdx;
-                        aIdx = Utils::convert2Dto1DUtil(nY, nX, i - 1, j);
-                        bIdx = Utils::convert2Dto1DUtil(nY, nX, i + 1, j);
-                        lIdx = Utils::convert2Dto1DUtil(nY, nX, i, j - 1);
-                        rIdx = Utils::convert2Dto1DUtil(nY, nX, i, j + 1);
 
-                        //Set b value
-                        div[cidx] = -adjustedDive;
-                        //Set values in A (fill in relevant values in row ij)
+                        //set b value
+                        div[cIdx] = -dive;
 
-                        //A.insert(cidx, aIdx) = coeffAbove;
-                        //A.insert(cidx, bIdx) = coeffBelow;
-                        //A.insert(cidx, lIdx) = coeffLeft;
-                        //A.insert(cidx, rIdx) = coeffRight;
-                        //A.insert(cidx, cidx) = pijCoeff;
-
-                        trips.emplace_back(Eigen::Triplet<double>(cidx, aIdx, coeffAbove));
-                        trips.emplace_back(Eigen::Triplet<double>(cidx, bIdx, coeffBelow));
-                        trips.emplace_back(Eigen::Triplet<double>(cidx, lIdx, coeffLeft));
-                        trips.emplace_back(Eigen::Triplet<double>(cidx, rIdx, coeffRight));
-                        trips.emplace_back(Eigen::Triplet<double>(cidx, cidx, pijCoeff));
+                        //Set coefficients in A (fill in relevant values in row ij)
+                        A.coeffRef(cIdx, aIdx) = coeffAbove;
+                        A.coeffRef(cIdx, bIdx) = coeffBelow;
+                        A.coeffRef(cIdx, lIdx) = coeffLeft;
+                        A.coeffRef(cIdx, rIdx) = coeffRight;
+                        A.coeffRef(cIdx, cIdx) = pijCoeff;
 
 //                        ATest(cidx, aIdx) = coeffAbove;
 //                        ATest(cidx, bIdx) = coeffBelow;
@@ -259,9 +276,8 @@ namespace BasicFluidDynamics{
 //                        ATest(cidx, cidx) = pijCoeff;
                     }
                 }
-//             #pragma omp barrier
+             #pragma omp barrier
 
-            A.setFromTriplets(trips.begin(), trips.end());
 
 //            Eigen::LDLT<Eigen::MatrixXd> ALLT(ATest);
 

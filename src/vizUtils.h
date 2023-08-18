@@ -85,7 +85,6 @@ namespace BasicFluidDynamics {
 
         template<typename T1, typename T2>
         inline int writeMoisImage(std::string file, const BasicFluidDynamics::Data::flatStaggeredGrid<T1>& data, const BasicFluidDynamics::Data::flatStaggeredGrid<T2>& obs, const size_t xBuffer){
-            std::ofstream fil;
             size_t nX = data.getX(), nY = data.getY();
             cv::Mat img(nY, nX - xBuffer - xBuffer, CV_8UC4);
             //Image data
@@ -202,7 +201,6 @@ namespace BasicFluidDynamics {
 
         template<typename T1, typename T2>
         inline int writeTempImage(std::string file, const BasicFluidDynamics::Data::flatStaggeredGrid<T1>& data, const BasicFluidDynamics::Data::flatStaggeredGrid<T2>& obs, const size_t xBuffer){
-            std::ofstream fil;
             size_t nX = data.getX(), nY = data.getY();
             cv::Mat img(nY, nX - xBuffer - xBuffer, CV_8UC4);
             //Image data
@@ -303,7 +301,6 @@ namespace BasicFluidDynamics {
 
         template<typename T, typename T2>
         inline int writeVelImage(std::string file, const BasicFluidDynamics::Data::flatStaggeredGrid<T>& data, const BasicFluidDynamics::Data::flatStaggeredGrid<T2>& obs, const size_t xBuffer){
-            std::ofstream fil;
             size_t nX = data.getX(), nY = data.getY();
             cv::Mat img(nY, nX - xBuffer - xBuffer, CV_8UC4);
             //Image data
@@ -386,7 +383,6 @@ namespace BasicFluidDynamics {
 
         template<typename T, typename T2>
         inline int writePresImage(std::string file, const BasicFluidDynamics::Data::flatStaggeredGrid<T>& data, const BasicFluidDynamics::Data::flatStaggeredGrid<T2>& obs, const size_t xBuffer){
-            std::ofstream fil;
             size_t nX = data.getX(), nY = data.getY();
             cv::Mat img(nY, nX - xBuffer - xBuffer, CV_8UC4);
             //Image data

@@ -154,11 +154,11 @@ namespace BasicFluidDynamics{
             return res;
         }
 
-        inline const size_t convert2Dto1DUtil(const size_t x, const size_t y, const int i, const int j){
+        inline const size_t convert2Dto1DUtil(const size_t rowCount, const size_t colCount, const int i, const int j){
             int i1, j1;
-            i1 = (i < 0) ? i + x : i;
-            j1 = (j < 0) ? j + y : j;
-            return (i1 % x) * y + (j1 % y);
+            i1 = (i < 0) ? i + rowCount : i;
+            j1 = (j < 0) ? j + colCount : j;
+            return (i1 % rowCount) * colCount + (j1 % colCount);
         }
 
         /**

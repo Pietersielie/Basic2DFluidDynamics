@@ -115,6 +115,7 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
 
     std::cout << "Testing shape " << shapeFile << " in a wind tunnel at speed " << windSpeed << " metres per second, for " << simTime << " seconds and a timestep of " << dT << " seconds." << std::endl;
     std::cout << "The grid is " << nY << " cells high and " << nX << " cells wide." << std::endl;
+    std::cout << steps << " steps will be taken." << std::endl;
     double previousStep = 0;
     for (int i = 0; i <= steps; ++i){
         if (i % frac == 0){
@@ -149,6 +150,7 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
         else if (i == (7 * steps / 8))
             std::cerr << "\033[1;36m87.5% of the way\033[0m" << std::endl;
     }
+    std::cout << "\033[1;36mFinished!\033[0m" << std::endl;
 }
 
 int main(int argc, char** argv){
