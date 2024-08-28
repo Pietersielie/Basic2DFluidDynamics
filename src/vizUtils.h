@@ -320,12 +320,12 @@ namespace BasicFluidDynamics {
                         int tNormed = ((std::abs(t) / max) * 255);
                         r = 0;
                         if (BasicFluidDynamics::Utils::getSign(t) > 0){
-                            g = 255 - std::min(255 - tNormed, 255);
+                            g = 255 - std::max(0, std::min(255 - tNormed, 255));
                             b = 0;
                         }
                         else{
                             g = 0;
-                            b = 255 - std::min(255 - tNormed, 255);
+                            b = 255 - std::max(0, std::min(255 - tNormed, 255));
                         }
                     }
                     cv::Vec4b& bgra = img.at<cv::Vec4b>(i, j - xBuffer);

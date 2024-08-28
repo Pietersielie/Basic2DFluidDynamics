@@ -93,6 +93,7 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
 
     auto l1 = constructAirLayer(shapeFile);
     setWindTunnel(l1, windSpeed);
+
 //    l1->getVelocityX().copy(windSpeed);
     std::stringstream fT, fVY, fVX, fP;
     fT << "../ImageOutput/Init_Colour.png";
@@ -128,10 +129,10 @@ void runTest(const std::string shapeFile, const valType windSpeed, const float s
             BasicFluidDynamics::Utils::writeVelImage(fVY.str(), l1->getVelocityY(), l1->getObstacles(), xBuffer);
             BasicFluidDynamics::Utils::writePresImage(fP.str(), l1->getPressure(), l1->getObstacles(), xBuffer);
         }
-        previousStep = x.getRunTimePassed();
+        previousStep = x.getRunTimePassed() + y.getRunTimePassed();
         x.step();
         y.step();
-        double currentStep = x.getRunTimePassed();
+        double currentStep = x.getRunTimePassed() + y.getRunTimePassed();
         std::cout << "Step " << i + 1 << " took " << currentStep - previousStep << " seconds." << std::endl;
         setWindTunnel(l1, windSpeed);
         if (i == steps / 8)
