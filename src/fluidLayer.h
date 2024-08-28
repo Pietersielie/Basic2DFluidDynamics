@@ -24,7 +24,6 @@
 #include "flatStaggeredGrid.h"
 #include <iostream>
 #include <memory>
-#include <typeinfo>
 #include <vector>
 
 namespace BasicFluidDynamics{
@@ -39,16 +38,13 @@ namespace BasicFluidDynamics{
                 std::shared_ptr<T> colour;//temperature in Kelvin
                 std::shared_ptr<T> pressure;//modified pressure, not true pascal values
 
-                V density = 1.204; //density in kg per cubic metre
+                V density = 1.204; //density in kg per cubic metre -- 1.204 for air, 1000 for water
 			public:
 				std::vector<std::shared_ptr<T>> scalarQuantities;
 				std::vector<std::shared_ptr<T>> oldScalarQuantities;
 				
 				//Various constructors for different parameter inputs.
                 fluidLayer();
-
-				//Constructor meant to be used with square2DArray
-                fluidLayer(size_t faceWidth, const V size = 50000.f);
 
                 //Constructor meant to be used with flatStaggeredGrid
                 fluidLayer(const size_t width, const size_t height, const V xSize, const V ySize);
@@ -136,25 +132,10 @@ namespace BasicFluidDynamics{
             pressure = std::make_shared<T>();
 
             scalarQuantities.push_back(colour);
-		}
-		
-		/**
-         * This constructor is specifically meant for using PWM::PWMDataStructure::square2DArray<V> for the various fields.
-		 */
-		template<typename T, typename V>
-        inline fluidLayer<T, V>::fluidLayer(size_t faceWidth, const V size){
-			obstacles = std::make_shared<T>(faceWidth, size);
-            velocityY = std::make_shared<T>(faceWidth, size);
-            velocityX = std::make_shared<T>(faceWidth, size);
-            colour = std::make_shared<T>(faceWidth, size);
-            pressure = std::make_shared<T>(faceWidth, size);
-
-            scalarQuantities.push_back(colour);
-			init();
-		}
+        }
 
         /**
-         * This constructor is specifically meant for using PWM::PWMDataStructure::flatStaggeredGrid<V> for the various fields.
+         * This constructor is specifically meant for using flatStaggeredGrid<V> for the various fields.
          */
         template<typename T, typename V>
         inline fluidLayer<T, V>::fluidLayer(const size_t width, const size_t height, const V xSize, const V ySize){
